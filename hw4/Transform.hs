@@ -13,7 +13,7 @@ import ProdTree
     R ->
     R -> , L R
 -}
-lst1Nt s = s `elem` ["L","S","R"]
+lst1Nt s = s `elem` ["L", "S", "R"]
 
 lst1 :: Grammar
 lst1 =
@@ -25,7 +25,7 @@ lst1 =
           ("R",[",","L"]),
           ("R",[",","L","R"])], lst1Nt)
 
-lst2Nt s = s `elem` ["L","S","R", "C", "LB", "RB"]
+lst2Nt s = s `elem` ["L", "S", "R", "C", "LB", "RB"]
 
 lst2 :: Grammar
 lst2 =
@@ -40,7 +40,7 @@ lst2 =
           ("LB", ["["]),
           ("RB", ["]"])], lst2Nt)
 
-lst3Nt s = s `elem` ["L","S","R", "C", "LB", "RB", "N1", "N2"]
+lst3Nt s = s `elem` ["L", "S", "R", "C", "LB", "RB", "N1", "N2"]
 
 lst3 :: Grammar
 lst3 =

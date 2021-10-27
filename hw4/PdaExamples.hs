@@ -12,7 +12,7 @@ ab = Pda [0..3] ['a','b'] [Start,Step] trans eps 0 [3]
         trans 'b' = [(2,Pop Step,2)]
 
 test = multistep ab "aaabbb"
-
+test1 = multistep ab "aaabbbba"
 
 {-
 
