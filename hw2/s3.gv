@@ -1,0 +1,14 @@
+digraph nfa {
+rankdir = LR;
+hidden [shape = plaintext, label = ""];
+node [shape = doublecircle];
+S4 [label = ""];
+S6 [label = ""];
+node [shape = point];
+hidden -> S1;
+S1 -> S2 [label = "A"];
+S2 -> S4 [label = "B"];
+S2 -> S6 [label = "C"];
+S3 -> S4 [label = "B"];
+S5 -> S6 [label = "C"];
+}
