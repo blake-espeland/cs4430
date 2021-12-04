@@ -5,10 +5,8 @@ import GvShow
 import Debug
 import TMExamples(tripletm)
 
-
-
 sigma = "01.,#"
-sigNoPD = "01.,#"
+sigNoPD = "01.,"
 stackChars = sigma ++ "abcdxrh! "
 stackCharsNoH = sigma ++ "abcdxr! "
 stackCharsNoR = sigma ++ "abcdxh! "
@@ -16,27 +14,23 @@ stackCharsNoPD = sigNoPD ++ "abcdxrh! "
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-{-
-Resetting read artifacts
-Goes from start state a to end state b
-Requres 2 intermediary states
--}
+-- | Resetting read artifacts
+-- | Goes from start state a to end state b
+-- | Requres 2 intermediary states
 resetArtifacts :: Integer -> Integer -> [Trans Integer Char]
 resetArtifacts a b = 
     goLeft a 'a' '0' (a + 1) ++
     goLeft a 'b' '1' (a + 1) ++
     goLeft a 'c' '1' (a + 1) ++
     goLeft a 'd' '0' (a + 1) ++
-    goLeft a 'h' ',' (a + 1) ++
     goLeft a 'r' '.' (a + 1) ++
     goLeft (a + 1) 'a' '0' a ++
     goLeft (a + 1) 'b' '1' a ++
     goLeft (a + 1) 'c' '1' a ++
     goLeft (a + 1) 'd' '0' a ++
-    goLeft (a + 1) 'h' ',' a ++
     goLeft (a + 1) 'r' '.' a ++
-    loopLeft a ".,#x" ++
-    loopLeft (a + 1) ".,#x" ++
+    loopLeft a ".,#xh" ++
+    loopLeft (a + 1) ".,#xh" ++
     goRight a '!' '!' (a + 2) ++
     goRight (a + 1) '!' '!' (a + 2) ++
     goToEnd (a + 2) b
@@ -47,35 +41,45 @@ resetArtifacts a b =
 -------------------------------------------------------------------------------
 -- SEARCHING FOR NEXT STATE
 -------------------------------------------------------------------------------
-{-
-Rule for writing bits:
-If first char read is 0:
-    Other char is 0 -> write a
-    Other char is 1 -> write b
-If first char read is 1:
-    Other char is 0 -> write d
-    Other char is 1 -> write c
--}
--- | Start before direction end at state b
+-- | Rule for writing bits:
+-- | If first char read is 0:
+-- |     Other char is 0 -> write a
+-- |     Other char is 1 -> write b
+-- | If first char read is 1:
+-- |     Other char is 0 -> write d
+-- |     Other char is 1 -> write c
+-- | Starting from the end
+readForNextTrans :: Integer -> [Trans Integer Char]
+readForNextTrans a = 
+    loopLeft a "ac" ++
+    goRight a '0' 'a' (a + 1) ++
+    readZeroFromTrans (a + 1) ++
+    markReadPt (a + 10) (a + 23) ++ -- Exit here
+    goRight a '1' 'c' (a + 12) ++
+    readOneFromTrans (a + 12) ++
+    markReadPt (a + 21) (a + 23) -- Exit here
+
 -- | 3 states
 markReadPt :: Integer -> Integer -> [Trans Integer Char]
 markReadPt a b =
     loopRight a "ac10." ++
     goLeft a ',' ',' (a + 1) ++
     goRight (a + 1) '.' 'r' b
+
 -- | 1 states
 checkForZero :: Integer -> [Trans Integer Char]
 checkForZero a =
     loopRight a "ac" ++
     goRight a '0' 'a' (a + 1) ++
     goRight a '1' 'b' (a + 1)
+
 -- | 1 states
 checkForOne :: Integer -> [Trans Integer Char]
 checkForOne a =
     loopRight a "ac" ++
     goRight a '0' 'd' (a + 1) ++
     goRight a '1' 'c' (a + 1)
--- | Start from end, finish before direction
+
 -- | 8 states
 readZeroFromTrans :: Integer -> [Trans Integer Char]
 readZeroFromTrans a =
@@ -95,7 +99,7 @@ readZeroFromTrans a =
     goRight (a + 3) '.' '.' (a + 6) ++ -- done reading state
     checkForZero (a + 6) ++
     goRight (a + 6) '.' '.' (a + 9)
--- | Start from end, finish before direction
+
 -- | 8 states
 readOneFromTrans :: Integer -> [Trans Integer Char]
 readOneFromTrans a =
@@ -115,16 +119,15 @@ readOneFromTrans a =
     goRight (a + 3) '.' '.' (a + 6) ++ -- done reading state
     checkForOne (a + 6) ++ -- a + 6 -> a + 7
     goRight (a + 6) '.' '.' (a + 9)
-{- 
-If there's an incorrect bit, go to next transition
-cur -> curent state
-par -> parent state to return to
--}
+ 
+-- | If there's an incorrect bit, go to next transition
+-- | cur -> curent state
+-- | par -> parent state to return to
 nextTransition :: Integer -> Integer -> [Trans Integer Char]
 nextTransition cur par =
     loopRight cur "01.abcd" ++
     goRight cur ',' ',' par
--- | Start at end, go to beginning of transitions
+
 -- | 3 states
 fromStatetoTrans :: Integer -> [Trans Integer Char]
 fromStatetoTrans a =
@@ -134,16 +137,6 @@ fromStatetoTrans a =
     goLeft (a + 1) '#' '#' (a + 2) ++
     loopLeft (a + 2) "01,.abcdhr" ++
     goRight (a + 2) '#' '#' (a + 3)
--- | Starting from the end
-readForNextTrans :: Integer -> [Trans Integer Char]
-readForNextTrans a = 
-    loopLeft a "ac" ++
-    goRight a '0' 'a' (a + 1) ++
-    readZeroFromTrans (a + 1) ++
-    markReadPt (a + 10) (a + 23) ++ -- Exit here
-    goRight a '1' 'c' (a + 12) ++
-    readOneFromTrans (a + 12) ++ -- a + 12 -> a + 20
-    markReadPt (a + 21) (a + 23) -- Exit here
 -------------------------------------------------------------------------------
 -- SEARCHING FOR NEXT STATE
 -------------------------------------------------------------------------------
@@ -175,6 +168,7 @@ writeNewState a =
     goRight (a + 7) '0' 'a' (a + 1) ++
     writeOneToState (a + 4) ++
     goLeft (a + 6) 'r' 'r' a
+
 -- | Starting from the char after char to be written
 -- | 2 states
 writeOneToState :: Integer -> [Trans Integer Char]
@@ -184,6 +178,7 @@ writeOneToState a =
     goLeft (a + 1) 'a' '1' (a + 2) ++
     goLeft (a + 1) 'c' '1' (a + 2) ++
     loopLeft (a + 2) "10.,abcd#"
+
 -- | Starting from the char after char to be written
 -- | 2 states
 writeZeroToState :: Integer -> [Trans Integer Char]
@@ -201,7 +196,7 @@ writeZeroToState a =
 -------------------------------------------------------------------------------
 -- WRITING NEW CHAR TO TAPE
 -------------------------------------------------------------------------------
--- Starting at end of state
+-- Starting at end
 writeCharToTape :: Integer -> [Trans Integer Char]
 writeCharToTape a = 
     loopLeft a "ac" ++
@@ -229,6 +224,36 @@ writeCharToTape a =
 
 
 -------------------------------------------------------------------------------
+-- WRITING NEW CHAR TO STATE
+-------------------------------------------------------------------------------
+-- | Start at readhead
+newCharToState :: Integer -> [Trans Integer Char]
+newCharToState a = 
+    loopLeft a "ac" ++
+    goRight a ',' ',' (a + 6) ++
+    goRight a '#' '#' (a + 6) ++ 
+    goToEnd (a + 6) (a + 7) ++      -- Exit here
+    -- Write 0
+    goRight a '0' 'a' (a + 1) ++
+    goToEnd (a + 1) (a + 2) ++ 
+    loopLeft (a + 2) "01" ++
+    goLeft (a + 2) 'a' '0' (a + 3) ++
+    goLeft (a + 2) 'c' '0' (a + 3) ++
+    -- Return
+    loopLeft (a + 3) stackCharsNoH ++
+    goLeft (a + 3) 'h' 'h' a ++
+    -- Write 1
+    goRight a '1' 'c' (a + 4) ++
+    goToEnd (a + 4) (a + 5) ++ 
+    loopLeft (a + 5) "01" ++
+    goLeft (a + 5) 'a' '1' (a + 3) ++
+    goLeft (a + 5) 'c' '1' (a + 3)
+-------------------------------------------------------------------------------
+-- WRITING NEW CHAR TO STATE
+-------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------
 -- CHECKING IF FINAL STATE
 -------------------------------------------------------------------------------
 checkIfInFinalState :: Integer -> [Trans Integer Char]
@@ -252,6 +277,7 @@ checkIfInFinalState a =
     goLeft (a + 22) '1' 'd' (a + 24) ++
     goLeft (a + 22) 'd' 'd' (a + 24) ++
     nextFinalState (a + 24) a (a + 33) -- Exit here
+
 goToFinalState :: Integer -> Integer -> [Trans Integer Char]
 goToFinalState a b =
     loopLeft a stackCharsNoPD ++
@@ -261,17 +287,20 @@ goToFinalState a b =
     loopLeft (a + 2) stackCharsNoPD ++
     goLeft (a + 2) '#' '#' (a + 3) ++
     goLeft (a + 3) ',' ',' b
+
 goBackToCurState :: Integer -> Integer -> [Trans Integer Char]
 goBackToCurState a b = 
     goToEnd a (a + 1) ++
     loopLeft (a + 1) "ac01" ++
     goLeft (a + 1) '.' '.' b
+
 nextFinalState :: Integer -> Integer -> Integer -> [Trans Integer Char]
 nextFinalState a b e = 
     resetState a (a + 8) ++
     loopLeft (a + 8) "abcd01" ++
     goLeft (a + 8) ',' ',' b ++
     goLeft (a + 8) '#' '#' e
+
 resetState :: Integer -> Integer -> [Trans Integer Char]
 resetState a b = 
     goBackToCurState a (a + 2) ++
@@ -313,6 +342,9 @@ moveInDirection a =
     goLeft (a + 7) 'h' ',' (a + 8) ++
     loopLeft (a + 8) "01ac" ++
     goLeft (a + 8) ',' 'h' (a + 6)   -- Exit here
+-------------------------------------------------------------------------------
+-- MOVING IN GIVEN DIRECTION
+-------------------------------------------------------------------------------
 
 
 -------------------------------------------------------------------------------
@@ -323,6 +355,7 @@ goToBeginning :: Integer -> Integer -> [Trans Integer Char]
 goToBeginning a b = 
     loopLeft a stackChars ++
     goRight a '!' '!' b
+
 -- | Loop right at state a until reaching end, then go to state b
 goToEnd :: Integer -> Integer -> [Trans Integer Char]
 goToEnd a b = 
@@ -354,6 +387,7 @@ writeStartState a =
     loopRight (a + 4) stackChars ++
     goLeft (a + 3) ' ' '1' (a + 5) ++
     goToBeginning (a + 5) a
+
 -- | 7 states
 writeFirstChar :: Integer -> [Trans Integer Char]
 writeFirstChar a =
@@ -381,6 +415,9 @@ writeFirstChar a =
 -------------------------------------------------------------------------------
 
 
+-------------------------------------------------------------------------------
+-- THERE SHE IS...
+-------------------------------------------------------------------------------
 {-
 TM/string combo is encoded as
 e{Left endmarker}#
@@ -398,7 +435,7 @@ e{string input}
 -}
 
 msUniverse =
-    TM [1 .. 90] sigma stackChars id ' ' '!' trans 1 [87]
+    TM [1 .. 104] sigma stackChars id ' ' '!' trans 1 [89]
     where 
         trans = 
             -- Finish at end of start state
@@ -436,12 +473,24 @@ msUniverse =
 
             -- Finish at readhead char
             -- Exits to state a + 6
-            moveInDirection 88
+            moveInDirection 88 ++
 
-            -- Finish at 
-            -- Exits to state 
-            -- writeNewChar a
+            -- Finish at end
+            -- Exits to state a + 7
+            newCharToState 94 ++
 
-            -- Finish at end of string
+            -- Finish at beginning
             -- Exits to state 15
-            -- resetArtifacts a b
+            resetArtifacts 101 15
+-------------------------------------------------------------------------------
+-- THERE SHE IS...
+-------------------------------------------------------------------------------
+
+
+inputTM = tripletm
+inputString1 = inputU inputTM "aaabbbccc" -- accept
+inputString2 = inputU inputTM "aabbbc" -- reject
+inputString3 = inputU inputTM "cccbbbaaa" -- accept
+
+run1 = accepts msUniverse inputString1
+

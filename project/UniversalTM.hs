@@ -54,7 +54,8 @@ instance UEncode Char where
   bitenc = bitenc . ord
 
 instance UEncode Direction where
-  uenc l = bitenc
+  uenc GoLeft l = bitenc GoLeft
+  uenc GoRight l = bitenc GoRight
   bitenc GoLeft = "1"
   bitenc GoRight = "0"
   lemToChar GoLeft = '1'
