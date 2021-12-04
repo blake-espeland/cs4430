@@ -1,0 +1,30 @@
+digraph pda {
+graph [pad="1", nodesep=".5", ranksep="1"];
+rankdir = LR;
+hidden [shape = plaintext, label = ""];
+node [shape = doublecircle];
+7 [label = ""];
+node [shape = point];
+hidden -> 1;
+1 -> 7 [label = "' '/' '"];
+1 -> 1 [label = "'*'/'*'"];
+1 -> 2 [label = "'a'/'*'"];
+2 -> 2 [label = "'a'/'a'"];
+2 -> 2 [label = "'*'/'*'"];
+2 -> 3 [label = "'b'/'*'"];
+3 -> 3 [label = "'b'/'b'"];
+3 -> 3 [label = "'*'/'*'"];
+3 -> 4 [label = "'c'/'*'"];
+4 -> 4 [label = "'c'/'c'"];
+4 -> 4 [label = "'*'/'*'"];
+4 -> 5 [label = "'d'/'*'"];
+5 -> 5 [label = "'d'/'d'"];
+5 -> 5 [label = "'*'/'*'"];
+5 -> 6 [label = "' '\\' '"];
+6 -> 6 [label = "'a'\\'a'"];
+6 -> 6 [label = "'b'\\'b'"];
+6 -> 6 [label = "'c'\\'c'"];
+6 -> 6 [label = "'d'\\'d'"];
+6 -> 6 [label = "'*'\\'*'"];
+6 -> 1 [label = "'!'/'!'"];
+}

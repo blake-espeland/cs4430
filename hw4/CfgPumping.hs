@@ -28,8 +28,7 @@ findNestedNth nt path (Node x ts) seen =
                else
                  Nothing -- stop at terminals
     Just (_,path') -> Just (path',path)
-  where seen' = if null path then seen else (x,path) : seen {- don't add the root, so the context
-                                                               we find is nontrivial -}
+  where seen' = (x,path) : seen
         descend _ [] = Nothing
         descend i (t : ts) =
           case findNestedNth nt (i : path) t seen' of

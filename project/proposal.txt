@@ -1,0 +1,27 @@
+UTM Name: Ms. Universe
+
+
+Blake Espeland and Krishna Pratti
+
+
+Debugging Tool:
+We plan on implementing a function that resembles 'accept' for TM's, only it 
+stores each transition used when parsing the input string and returns it as a 
+list.
+
+	Something like this:
+	debug :: UniversalTM -> String -> [String]
+	debug utm input = ...
+
+	ghci: debug MsUniverse input
+	>> ["0100,110010,1,1110,001100", "1110,001100,...", ...]
+
+
+Algorithm:
+Drawn and attached in the folder as MsUniverseAlgo.pdf
+Note: the stored state will need to be cleared before copying over the transition state.
+	  Also, some of the steps will likely become functions of their own. For sake of brevity,
+	  I've only included a synopsis of their function. We don't plan on changing the encoding.
+
+
+Preferred Presentation Date: Dec 7th

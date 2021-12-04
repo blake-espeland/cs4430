@@ -1,0 +1,141 @@
+Parse: ()(())
+
+    0
+0.  | ()(())
+
+'(' => Shift, enter state 5
+
+      5
+1.  ( | )(())
+    5
+')' => Reduce, using rule 1
+
+      5
+2. (Q | )(())
+   56
+goto state 6
+
+      6
+3. (Q | )(())
+   56
+')' => shift, and enter state 8
+
+       8
+4. (Q) | (())
+   568
+'(' => reduce using rule 5
+
+     0
+5. P | (())
+   0
+P => go to state 4
+
+     4
+6. P | (())
+   4
+'(' => reduce using rule 4
+
+     0
+7. S | (())
+   0
+S => go to state 3
+
+     3
+8. S | (())
+   3
+'(' => shift, and enter state 5
+
+      5
+9. S( | ())
+   35
+'(' => shift, and enter state 5
+
+        5
+10. S(( | ))
+    355
+')' => reduce using rule 1
+
+         5
+11. S((Q | ))
+    3556
+Q => goto state 6
+
+         6
+12. S((Q | ))
+    35568
+')' => shift, and enter state 8
+
+          8
+13. S((Q) | )
+    35568
+')' => shift, and enter state 8
+
+        8
+14. S(P | )
+    35?
+')' => reduce using rule 5
+
+        4
+15. S(P | )
+    354
+')' => reduce using rule 4
+
+        4
+16. S(S | )
+    350
+')' => reduce using rule 4
+
+        0
+17. S(S | )
+    350
+S => goto state 3
+
+        3
+18. S(S | )
+    353
+S => goto state 3
+
+        3
+19. S(Q | )
+    355
+')' => reduce using rule 4
+
+        5
+20. S(Q | )
+    35?
+Q => goto state 6
+
+        6
+21. S(Q | )
+    356
+')' => shift, and enter state 8
+
+         8
+22. S(Q) | 
+    3568
+')' => reduce using rule 5
+
+       3
+23. SP | 
+    3?
+P => goto state 7 
+
+       7
+24. SP | 
+    37
+%eof => reduce using rule 3
+
+      0
+25. S | 
+    ? 
+%eof => reduce using rule 1
+
+       0
+26. SQ | 
+    0?
+Q => goto state 2
+
+       2
+27. SQ | 
+    02
+%eof => accept
